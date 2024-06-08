@@ -17,11 +17,14 @@ class AllApiMethod{
         todoResponse["status"] = true;
         List getResponseList = jsonDecode(todoAPIResponse.body);
         List<Todo> getTodoList = [];
+        List<int> getUserList = [];
         for(int i = 0 ; i < getResponseList.length ; i++){
           Map<String,dynamic> getTodoJson = getResponseList[i];
+          getUserList.add(getTodoJson["userId"]);
           getTodoList.add(Todo.fromJson(todoJson: getTodoJson));
         }
         todoResponse["data"] = getTodoList;
+        todoResponse["user_data"] = getUserList.toSet().toList();
       }
       else{
         todoResponse["status"] = false;

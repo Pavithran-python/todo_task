@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:todo_task/APIRequest/AllApiMethod.dart';
+import 'package:todo_task/Config/ColorConfig.dart';
+import 'package:todo_task/Config/SizeConfig.dart';
 import 'package:todo_task/Config/TextConfig.dart';
+import 'package:todo_task/Config/ValueConfig.dart';
 import 'package:todo_task/Model/Todo.dart';
+import 'package:todo_task/Page/ProfilePage.dart';
 import 'package:todo_task/Page/TodoListPage.dart';
 import 'package:todo_task/ReusableComponent/AppBar/AppBarWidget.dart';
 import 'package:todo_task/ReusableComponent/BottomBar/bottomBarWidget.dart';
 import 'package:todo_task/ReusableComponent/MessageBox/messageBoxWidget.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  //FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(const MyApp());
 }
@@ -41,6 +46,8 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isAPILoading = false;
   List<Todo> getTodoAPIList = [];
   List<Todo> getTodoList = [];
+  List<int> getUserList = [];
+  int? selectedUser;
 
   messageBox({required String getMessage}){
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -55,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
   checkTodoCondition(){
     setState(() {
       getTodoList.clear();
-      getTodoList = getTodoAPIList.where((getList) => (getList.todoStatus==toggleStatus)).toList();
+      getTodoList = getTodoAPIList.where((getList) => ((getList.todoStatus==toggleStatus && ((selectedUser==null || selectedUser ==0)?true:selectedUser==getList.todoUserId)))).toList();
       print("todoList Length : ${getTodoList.length}");
       print("total Length : ${getTodoAPIList.length}");
     });
@@ -71,7 +78,12 @@ class _MyHomePageState extends State<MyHomePage> {
       print("Success");
       print("User Data : ${getUserData}");
       setState(() {
+        getUserList.clear();
+        getTodoList.clear();
+        getTodoAPIList.clear();
         getTodoAPIList = getUserData["data"];
+        getUserList = getUserData["user_data"];
+        getUserList.insert(0,0);
       });
       checkTodoCondition();
     }
@@ -89,6 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    FlutterNativeSplash.remove();
     callTodoAPI();
   }
 
@@ -105,7 +118,14 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       }),
       body: Container(
-        child: isAPILoading?Wrap(children:[Container(width: 30,height: 30,child: CircularProgressIndicator(color: Colors.blue,),)]):TodoListPage(screenWidth: screenWidth, screenHeight: screenHeight,getTodoList: getTodoList),
+        alignment: Alignment.center,
+        child: isAPILoading?Wrap(children:[Container(width: ValueConfig().getValueWidth(screenWidth: screenWidth, getWidth: SizeConfig().refreshIndicatorSize),height: ValueConfig().getValueWidth(screenWidth: screenWidth, getWidth: SizeConfig().refreshIndicatorSize),child: CircularProgressIndicator(color: ColorConfig().appBarBackgroundColor,),)]):currentIndex==0?TodoListPage(screenWidth: screenWidth, screenHeight: screenHeight,getTodoList: getTodoList):ProfilePage(screenWidth: screenWidth, screenHeight: screenHeight, selectedUser: selectedUser, getUserList: getUserList, callBackSelectedUser: (int getUser){
+          setState(() {
+            selectedUser = getUser;
+            currentIndex = 0;
+            callTodoAPI();
+          });
+        }),
       ),
       bottomNavigationBar:bottomBarWidget(screenWidth: screenWidth, screenHeight: screenHeight,selectedIndex: currentIndex,callBackSelectedIndex: (int getIndex){
         setState(() {

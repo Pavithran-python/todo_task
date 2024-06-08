@@ -4,7 +4,7 @@ class Todo{
   int? todoUserId;
   int? todoId;
   String? todoMessage;
-  bool? todoStatus;
+  late bool todoStatus;
 
   Todo({
     required this.todoUserId,
@@ -17,7 +17,7 @@ class Todo{
     todoUserId = todoJson["userId"];
     todoId = todoJson["id"];
     todoMessage = todoJson["title"];
-    todoStatus = todoJson["completed"];
+    todoStatus = todoJson["completed"]??false;
   }
 
   Map<String,dynamic> toJson(){

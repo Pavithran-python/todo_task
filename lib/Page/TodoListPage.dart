@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import 'package:todo_task/Config/SizeConfig.dart';
+import 'package:todo_task/Config/ValueConfig.dart';
 import 'package:todo_task/Model/Todo.dart';
 import 'package:todo_task/ReusableComponent/ListWidget/todoListView.dart';
 
@@ -14,7 +16,7 @@ Widget TodoListPage({required double screenWidth,required double screenHeight,re
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
-            height: 20,
+            height: ValueConfig().getValueHeight(screenHeight: screenHeight, getHeight: SizeConfig().todoListGapBetweenCards),
           ),
           ListView.builder(
             shrinkWrap: true,
@@ -22,10 +24,9 @@ Widget TodoListPage({required double screenWidth,required double screenHeight,re
             scrollDirection: Axis.vertical,
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: ((BuildContext context, int index) {
-              return todoListView(screenWidth: screenWidth, screenHeight: screenHeight);
+              return todoListView(screenWidth: screenWidth, screenHeight: screenHeight, getTodoItem: getTodoList[index],);
             }),
           ),
-
         ],
       ),
     ),
